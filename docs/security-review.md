@@ -27,18 +27,22 @@ Important risks to keep watching:
 HashiCorp Vault dynamic secrets:
 - Similar idea: short-lived, leased credentials with renewal/revocation.
 - Difference: many Vault Agent flows still render secrets onto the client filesystem. This repo avoids that by keeping secrets inside provider adapters.
+- Reference: https://developer.hashicorp.com/vault/docs/secrets
 
 AWS STS and IAM Roles Anywhere:
 - Similar idea: workloads use identity to obtain temporary credentials.
 - Difference: the workload often receives temporary credentials. This broker can go further by returning only an operation result.
+- References: https://docs.aws.amazon.com/STS/latest/APIReference/welcome.html and https://docs.aws.amazon.com/rolesanywhere/latest/userguide/introduction.html
 
 SPIFFE/SPIRE workload identity:
 - Similar idea: verifiable workload identity, short-lived SVIDs, and policy-bound access.
 - Best production path: use workload identity to authenticate the broker and agents, then broker operation access by policy.
+- Reference: https://spiffe.io/docs/latest/spiffe-about/overview/
 
 OIDC workload federation:
 - Similar idea: agent or runner identity is exchanged for scoped access without static keys.
 - Good fit for CI/CD and cloud APIs when the provider supports it.
+- Reference: https://openid.net/specs/openid-connect-core-1_0.html
 
 Secretless brokers and sidecars:
 - Similar idea: application talks to a local proxy, proxy handles credentials.
