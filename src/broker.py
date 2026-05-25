@@ -101,7 +101,7 @@ def verify_lease_token(token: str) -> dict[str, Any]:
         claims = json.loads(fernet().decrypt(token.encode("utf-8"), ttl=None).decode("utf-8"))
     except (InvalidToken, json.JSONDecodeError) as exc:
         raise PermissionError("invalid_lease_token") from exc
-    if int(claims.get("exp", 0)) < int(time.time()):
+    if int(claims.get("exp", 0)) <= int(time.time()):
         raise PermissionError("expired_lease_token")
     return claims
 

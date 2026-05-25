@@ -1,6 +1,8 @@
 import os
+import json
 import time
 import unittest
+from unittest import mock
 
 from cryptography.fernet import Fernet
 
@@ -53,16 +55,23 @@ class CredentialBrokerSecurityTests(unittest.TestCase):
         self.assertEqual(broker.redact(payload)["nested"]["safe"], "value")
 
     def test_demo_response_shape_has_no_secret_values(self):
-        response = {
-            "ok": True,
-            "data": {
-                "credential_injected": True,
-                "message": "demo provider read succeeded through broker-owned credential injection",
-            },
-            "secret_values_returned": False,
+        lease = {
+            "id": 9,
+            "agent_id": "agent-1",
+            "system": "demo",
+            "resource_type": "dataset",
+            "resource_id": "alpha",
+            "action": "read",
+            "expires_at": broker.utcnow() + broker.timedelta(seconds=60),
         }
-        text = str(response)
+        token = broker.issue_lease_token(lease, ttl_seconds=60)
+        with mock.patch.object(broker, "load_secret_for_claims", return_value="demo-secret-value"):
+            with mock.patch.object(broker, "audit", return_value=None):
+                response = broker.demo_provider_read({"lease_token": token, "query": "status"})
+        text = json.dumps(response, sort_keys=True)
         self.assertNotIn("demo-secret-value", text)
+        self.assertTrue(response["ok"])
+        self.assertTrue(response["data"]["credential_injected"])
         self.assertFalse(response["secret_values_returned"])
 
 
