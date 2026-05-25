@@ -1,0 +1,17 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: agent-credential-broker-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${BROKER_DB_NAME:-agent_credential_broker}
+      POSTGRES_USER: ${BROKER_DB_USER:-credential_broker}
+      POSTGRES_PASSWORD: ${BROKER_DB_PASSWORD:?set BROKER_DB_PASSWORD in .env}
+    ports:
+      - "${BROKER_DB_PORT:-25491}:5432"
+    volumes:
+      - broker_pgdata:/var/lib/postgresql/data
+      - ./schema:/docker-entrypoint-initdb.d:ro
+
+volumes:
+  broker_pgdata:
